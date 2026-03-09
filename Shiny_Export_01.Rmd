@@ -1,0 +1,17 @@
+Convert app to site.
+
+Load package.
+```{r}
+library(shinylive)
+```
+
+Export
+```{r}
+setwd("C:/Users/budha/Documents/R/ShinyPsi")
+export("ShinyPsi", "ShinyPsiLive")
+```
+
+```{r}
+httpuv::runStaticServer("ShinyPsiLive/")
+```
+

@@ -1,0 +1,20 @@
+﻿.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+.DS_Store
+.Renviron
+*.Rprofile
+# dependency managers
+renv/library/
+packrat/
+# local deploy artifacts
+rsconnect/
+# quarto / sites
+.quarto/
+_site/
+_book/
+# editors
+.vscode/
+# data (keep large/raw out of git)
+data/raw/*

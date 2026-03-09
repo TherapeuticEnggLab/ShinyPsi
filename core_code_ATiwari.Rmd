@@ -1,0 +1,64 @@
+Testing the code form https://github.com/akshayytiwari/adjusted_psi
+For the purpose of converting to app through reactive programming
+
+Point correction function.
+```{r}
+eps <- 1e-08
+correction <- function(rho_c, psi_c, phi_c, alpha, beta) {
+  numerator <- rho_c * (1 - rho_c) * (psi_c - 1 + phi_c) * (alpha + beta - 1)
+  denominator <- (rho_c + beta - 1) * (psi_c * rho_c * (1 - alpha) - alpha * (1 - phi_c) * (1 - rho_c))
+  denominator <- ifelse(abs(denominator) < eps, NA, denominator)
+
+  psi_temp <- 1 - numerator / denominator
+  psi <- ifelse(is.na(psi_temp) | psi_temp < 0 | psi_temp > 1, NA, psi_temp)
+  
+  c(psi)
+}
+```
+
+Monte Carlo function.
+```{r}
+set.seed(123)
+monte_carlo <- function (n, sp, sn, n_iter,
+                         rho_c, psi_c, phi_c,
+                         alpha_a, alpha_b, beta_a, beta_b) {
+  
+  alpha <- rbeta(n_iter, alpha_a, alpha_b)
+  beta  <- rbeta(n_iter, beta_a, beta_b)
+  rho_c <- rbinom(n_iter, n, rho_c) / n
+  psi_c <- rbinom(n_iter, sp, psi_c) / sp
+  phi_c <- rbinom(n_iter, sn, phi_c) / sn
+
+  psi_hat <- correction(rho_c, psi_c, phi_c, alpha, beta)
+  
+  psi_l = quantile(psi_hat, probs = 0.25, na.rm = TRUE)
+  psi = quantile(psi_hat, probs = 0.5, na.rm = TRUE)
+  psi_u = quantile(psi_hat, probs = 0.75, na.rm = TRUE)
+  
+  return(c(psi_l, psi, psi_u))
+
+}
+```
+
+Carry out one cycle.
+```{r}
+n <- 31869
+sp <- 849
+sn <- 31020
+n_iter <- 100000
+rho_c <- 0.027
+psi_c <- 0.121
+phi_c <- 0.578
+alpha <- 0.848
+beta <- 1.0
+alpha_a <- 100
+alpha_b <- 17.3
+beta_a <- 68.3
+beta_b <- 0.2
+
+psi_point <- correction(rho_c, psi_c, phi_c, alpha, beta)
+psi_mc <- monte_carlo(n, sp, sn, n_iter,
+                      rho_c, psi_c, phi_c,
+                      alpha_a, alpha_b, beta_a, beta_b)
+```
+
