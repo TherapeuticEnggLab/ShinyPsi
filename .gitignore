@@ -18,3 +18,4 @@ _book/
 .vscode/
 # data (keep large/raw out of git)
 data/raw/*
+.Rproj.user

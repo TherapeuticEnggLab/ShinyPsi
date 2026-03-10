@@ -8,10 +8,10 @@ library(shinylive)
 Export
 ```{r}
 setwd("C:/Users/budha/Documents/R/ShinyPsi")
-export("ShinyPsi", "ShinyPsiLive")
+export(appdir = "ShinyPsi", destdir = "docs")
 ```
 
 ```{r}
-httpuv::runStaticServer("ShinyPsiLive/")
+httpuv::runStaticServer("docs/")
 ```
 

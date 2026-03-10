@@ -44,6 +44,12 @@ ui <- fluidPage(
          actionButton("Simulate", label = "Simulate!"),
          p("Median (IQR)"),
          textOutput("conf_estim")
+      ),
+      column(2,
+      ),
+      column(7,
+      h4("If you find ShinyPsi useful please consider citing our manuscript:"),
+      p("Tiwari, A., Chowdhury, S., James, A., Chatterjee, B., & Dixit, N. M. (2024). Adjusting for specificity of symptoms reveals higher prevalence of asymptomatic SARS-CoV-2 infections than previously estimated. medRxiv, 2024-09.")
       )
     )
 )
