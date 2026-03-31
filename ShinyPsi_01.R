@@ -2,31 +2,32 @@ library(shiny)
 
 ui <- fluidPage(
   titlePanel("ShinyPsi"),
+  h6("beta version"),
     fluidRow(
       column(3,
          h5("Essential estim params"),
-         numericInput("rho_c1", label = "rho_c", value = 0.027, min = 0, max = 1),
-         numericInput("psi_c1", label = "psi_c", value = 0.121, min = 0, max = 1),
-         numericInput("phi_c1", label = "phi_c", value = 0.578, min = 0, max = 1)
+         numericInput("rho_c1", label = HTML(paste0("ρ", tags$sub("c"))), value = 0.027, min = 0, max = 1),
+         numericInput("psi_c1", label = HTML(paste0("ψ", tags$sub("c"))), value = 0.121, min = 0, max = 1),
+         numericInput("phi_c1", label = HTML(paste0("φ", tags$sub("c"))), value = 0.578, min = 0, max = 1)
       ),
       column(3,
          h5("point estim params"),
-         numericInput("alpha1", label = "alpha", value = 0.848),
-         numericInput("beta1", label = "beta", value = 1.0)
+         numericInput("alpha1", label = "α", value = 0.848),
+         numericInput("beta1", label = "β", value = 1.0)
       ),
       column(3,
          h5("Confidence estim params 1"),
          numericInput("n1", label = "n", value = 31869, min = 1),
-         numericInput("sp1", label = "sp", value = 849, min = 1),
-         numericInput("sn1", label = "sn", value = 31020, min = 1),
-         numericInput("n_iter1", label = "n_iter", value = 100000, min = 1)
+         numericInput("sp1", label = "seropositive", value = 849, min = 1),
+         numericInput("sn1", label = "seronegative", value = 31020, min = 1),
+         numericInput("n_iter1", label = "iterations", value = 100000, min = 1)
       ),
       column(3,
          h5("Confidence estim params 2"),
-         numericInput("alpha_a1", label = "alpha_a", value = 100),
-         numericInput("alpha_b1", label = "alpha_b", value = 17.3),
-         numericInput("beta_a1", label = "beta_a", value = 68.3),
-         numericInput("beta_b1", label = "beta_b", value = 0.2)
+         numericInput("alpha_a1", label = HTML(paste0("α", "(a)")), value = 100),
+         numericInput("alpha_b1", label = HTML(paste0("α", "(b)")), value = 17.3),
+         numericInput("beta_a1", label = HTML(paste0("β", "(c)")), value = 68.3),
+         numericInput("beta_b1", label = HTML(paste0("β", "(d)")), value = 0.2)
       )
     ),
     fluidRow(
@@ -48,8 +49,8 @@ ui <- fluidPage(
       column(2,
       ),
       column(7,
-      h4("If you find ShinyPsi useful please consider citing our manuscript:"),
-      p("Tiwari, A., Chowdhury, S., James, A., Chatterjee, B., & Dixit, N. M. (2024). Adjusting for specificity of symptoms reveals higher prevalence of asymptomatic SARS-CoV-2 infections than previously estimated. medRxiv, 2024-09.")
+      h4("If you find ShinyPsi useful, please consider citing our manuscript:"),
+      p("Tiwari et al. (2026). To be updated soon.")
       )
     )
 )
