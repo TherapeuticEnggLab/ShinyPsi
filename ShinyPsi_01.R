@@ -18,8 +18,6 @@ ui <- fluidPage(
       column(3,
          h5("Confidence estim params 1"),
          numericInput("n1", label = "n", value = 31869, min = 1),
-         numericInput("sp1", label = "seropositive", value = 849, min = 1),
-         numericInput("sn1", label = "seronegative", value = 31020, min = 1),
          numericInput("n_iter1", label = "iterations", value = 100000, min = 1)
       ),
       column(3,
@@ -74,6 +72,8 @@ server <- function(input, output, session) {
   })
   
   # confidence estim
+  sp <- eventReactive(input$Simulate, {round(input$rho_c1 * input$n1)})
+  sn <- eventReactive(input$Simulate, {round((1 - input$rho_c1) * input$n1)})
   alpha_d <- eventReactive(input$Simulate,
                            {rbeta(input$n_iter1, input$alpha_a1, input$alpha_b1)
                            })
@@ -84,10 +84,10 @@ server <- function(input, output, session) {
                            {rbinom(input$n_iter1, input$n1, input$rho_c1) / input$n1
                            })
   psi_c_d <- eventReactive(input$Simulate,
-                           {rbinom(input$n_iter1, input$sp1, input$psi_c1) / input$sp1
+                           {rbinom(input$n_iter1, sp(), input$psi_c1) / sp()
                            })
   phi_c_d <- eventReactive(input$Simulate,
-                           {rbinom(input$n_iter1, input$sn1, input$phi_c1) / input$sn1
+                           {rbinom(input$n_iter1, sn(), input$phi_c1) / sn()
                            })
   
   numerator2 <- eventReactive(input$Simulate,
