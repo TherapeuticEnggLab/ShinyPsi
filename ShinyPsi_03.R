@@ -1,7 +1,6 @@
 library(shiny)
 library(shinythemes)
 library(stats)
-library(ggplot2)
 
 estimate_beta <- function(q_vals, sen_range = c(0.5, 100), spe_range = c(0.5, 100)) {
   best_loss <- Inf
@@ -40,13 +39,13 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                              column(3,
                                     h5("Essential parameters"),
                                     numericInput("rho_c1", label = HTML(paste0("ρ", tags$sub("c"))), value = 0.027, min = 0, max = 1),
-                                    numericInput("psi_c1", label = HTML(paste0("ψ", tags$sub("c"))), value = 0.121, min = 0, max = 1),
+                                    numericInput("psi_c1", label = HTML(paste0("ψ", tags$sub("c"))), value = 0.121, min = 0, max = 1)
                                     
                              ),
                              column(3,
                                     h5("point estimation parameters"),
                                     numericInput("alpha1", label = "α", value = 0.848, min = 0, max = 1),
-                                    numericInput("beta1", label = "β", value = 1.0, min = 0, max = 1),
+                                    numericInput("beta1", label = "β", value = 1.0, min = 0, max = 1)
                              ),
                              column(3,
                                     h5("Confidence estimation set1"),
@@ -65,20 +64,20 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                                     h4("Point Estimate"),
                                     actionButton("Calculate", label = "Calculate!", class = "btn-warning"),
                                     p("psi_point"),
-                                    textOutput("point_estim"),
+                                    textOutput("point_estim")
                              ),
                              column(6,
                                     plotOutput("plot", width = "600px", height = "200px")
                              ),
                              column(3,
                                     numericInput("beta_l", label = HTML(paste0("β", " (lower bound)")), value = 0.9, min = 0, max = 1),
-                                    numericInput("beta_u", label = HTML(paste0("β", " (upper bound)")), value = 1.0, min = 0, max = 1),
+                                    numericInput("beta_u", label = HTML(paste0("β", " (upper bound)")), value = 1.0, min = 0, max = 1)
                              )
                            ),
                            fluidRow(
                              column(3,
                                     h4("Confidence Estimate"),
-                                    actionButton("Simulate", label = "Simulate!", class = "btn-warning",
+                                    actionButton("Simulate", label = "Simulate!", class = "btn-warning"
                                     ),
                                     p("Median (IQR)"),
                                     textOutput("conf_estim")
@@ -201,13 +200,22 @@ server <- function(input, output, session) {
     outstring()
   })
   output$plot <- renderPlot({
-    ggplot(data.frame(psi_mc <- psi1()), aes(psi_mc)) + geom_density() +
-      geom_vline(xintercept = quantile(psi1(), probs = 0.25, na.rm = TRUE), color = "gray") +
-      geom_vline(xintercept = quantile(psi1(), probs = 0.5, na.rm = TRUE), color = "black") +
-      geom_vline(xintercept = quantile(psi1(), probs = 0.75, na.rm = TRUE), color = "gray") +
-      theme_bw() +
-      theme(panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank())
+    par(
+      mar = c(2, 2, 1, 1),   # bottom, left, top, right margins
+      mgp = c(1.8, 0.6, 0),  # axis title, axis labels, axis line
+      tcl = -0.25            # shorter tick marks
+    )
+    plot(
+      density(psi1(), na.rm = TRUE),
+      main = "",
+      xlab = "",
+      ylab = "",
+      lwd = 2
+    )
+    abline(v = quantile(psi1(), probs = 0.25, na.rm = TRUE), col = "gray")
+    abline(v = quantile(psi1(), probs = 0.50, na.rm = TRUE), col = "black")
+    abline(v = quantile(psi1(), probs = 0.75, na.rm = TRUE), col = "gray")
+    box()
   }, res = 96)
 }
 
