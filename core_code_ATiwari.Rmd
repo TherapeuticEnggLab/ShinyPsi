@@ -1,5 +1,8 @@
 Testing the code form https://github.com/akshayytiwari/adjusted_psi
 For the purpose of converting to app through reactive programming
+```{r}
+library(ggplot2)
+```
 
 Point correction function.
 ```{r}
@@ -35,8 +38,8 @@ monte_carlo <- function (n, sp, sn, n_iter,
   psi = quantile(psi_hat, probs = 0.5, na.rm = TRUE)
   psi_u = quantile(psi_hat, probs = 0.75, na.rm = TRUE)
   
-  return(c(psi_l, psi, psi_u))
-
+  #return(c(psi_l, psi, psi_u))
+  return(psi_hat)
 }
 ```
 
@@ -61,4 +64,10 @@ psi_mc <- monte_carlo(n, sp, sn, n_iter,
                       rho_c, psi_c, phi_c,
                       alpha_a, alpha_b, beta_a, beta_b)
 ```
+
+Plot.
+```{r}
+ggplot(data.frame(psi_mc <- psi_mc), aes(psi_mc)) + geom_density()
+```
+
 
