@@ -63,11 +63,14 @@ psi_point <- correction(rho_c, psi_c, phi_c, alpha, beta)
 psi_mc <- monte_carlo(n, sp, sn, n_iter,
                       rho_c, psi_c, phi_c,
                       alpha_a, alpha_b, beta_a, beta_b)
+
 ```
 
 Plot.
 ```{r}
 ggplot(data.frame(psi_mc <- psi_mc), aes(psi_mc)) + geom_density()
+temp1 <- density(psi_mc, na.rm = TRUE)
+plot(temp1$x, temp1$y)
 ```
 
 
