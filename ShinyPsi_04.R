@@ -53,6 +53,12 @@ monte_carlo <- function (n, sp, sn, n_iter,
   return(psi_hat)
 }
 
+downloadButton_fixed <- function(...) {
+  tag <- shiny::downloadButton(...)
+  tag$attribs$download <- NULL
+  tag
+}
+
 ui <- fluidPage(theme = shinytheme("superhero"),
                 tags$head(
                   tags$style(HTML("
@@ -71,7 +77,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                 tabsetPanel(
                   tabPanel("Application",
                            titlePanel("ShinyPsi"),
-                           h6("beta version"),
+                           h5("Adjusts asymptomatic-infection prevalence for nonspecific symptoms and test characteristics"),
                            fluidRow(
                              column(3,
                                     h5("Essential parameters"),
@@ -153,10 +159,10 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                                   p("Test specificity"),
                                   p(),
                                   h4(HTML("n")),
-                                  p("number of sampled individuals"),
+                                  p("Number of sampled individuals"),
                                   p(),
                                   h4(HTML("iterations")),
-                                  p("Monte Carlo simulation size"),
+                                  p("Virtual sample size for generating the distribution of ψ"),
                                   p(),
                                   h4("For a more detailed discussion on the paremeters please check out our paper:"),
                                   p("Tiwari et al. (2026). To be updated soon.")
@@ -166,7 +172,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                                   p(class = "justified-text",
                                   "The following instructions are written for a user who is using the app from their laptop or desktop with any operating system (we have tested Windows, Ubuntu and MacOS) and any web browser (we have tested Chrome, Edge, Safari, Firefox). The app can be used on the phones as well, although we do not recommend it. All calculations in ShinyPsi happen locally at your browser and that way no data ever leaves your computer."),
                                   p(class = "justified-text",
-                                    "The app, by default, has certain input values for each input space. Thus, immediately after loading or refreshing the app page, if you press “calculate!” and “simulate!” – i.e., the action buttons on the left bottom of the screen, results are displayed (action buttons are orange). You have to choose the number of iterations though. These results correspond to the latter default values, which we have kept for demonstration purposes."),
+                                    "The app, by default, has certain input values for each input space. Thus, immediately after loading or refreshing the app page, if you press “Calculate!” and “Simulate!” – i.e., the action buttons on the left bottom of the screen, results are displayed (action buttons are orange). You have to choose the number of iterations though. These results correspond to the latter default values, which we have kept for demonstration purposes."),
                                   p(class = "justified-text",
                                     "When you begin the analysis with your own data, first press the reset button on the bottom right of the screen. This will remove all the default values from the input boxes. Note that this step (the “Reset” action) is also important if you want to download your analysis outputs at the end (see below). Reset makes sure previous input values are not used in the fresh analysis."),
                                   p(class = "justified-text",
@@ -174,11 +180,13 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                                   p(class = "justified-text",
                                     "If you are attempting to get just the point estimate of psi, you need the second column of the app, i.e., the point estimation parameters. Columns 3 and 4 may remain blank. Press the “Calculate!” action button."),
                                   p(class = "justified-text",
-                                    "If you are looking for both the point and the distribution, you need the next two columns (see the description of parameters). After having the values of the parameters in all boxes, press “Simulate!” action button. Depending on the value of the iteration it might take few seconds to maybe minutes. All input values except n and iterations should be within 0 and 1. Any other input values or missing values will generate feedback for the user."),
+                                    "If you are looking for both the point estimate and the distribution of ψ, you need the next two columns (see the description of parameters). After having the values of the parameters in all boxes, press “Simulate!” action button. Depending on the number of the iteration it might take few seconds to maybe minutes. All input values except n and iterations should be between 0 and 1. Any other input values or missing values will generate feedback for the user."),
                                   p(class = "justified-text",
-                                    "Once the process is complete results will be displayed immediately below the action buttons. The plot that shows the distribution and the point estimate on it along with the IQRs will generate simultaneously. Resetting will remove the plot alongside the inputs."),
+                                    "Once the process is complete results will be displayed immediately below the action buttons. The plot that shows the distribution and the point estimate on it along with the IQRs will be generated simultaneously. Resetting will remove the plot alongside the inputs."),
                                   p(class = "justified-text",
-                                    "In case you want to keep a record of your analysis this is the time to back it up. Move to the Downloads tab. This tab will show the tables of point and confidence estimation. It will also show the header of the simulated distribution. The tables are ready for downloading when you can see them on the top of the download buttons. Resetting removes these tables. Download the csv files as necessary. Note that if you do not keep a record of your analysis and close/reload the app, all calculations will be lost. As stated earlier, your data never leaves your computer when you use our app – so we cannot help you retrieve your past analysis. Please back up your calculations before you end your session.")
+                                    "In case you want to keep a record of your analysis this is the time to back it up. Move to the Downloads tab. This tab will show the tables of point and confidence estimation. It will also show the same plot of the simulated distribution that is displayed on the application page. The tables are ready for downloading when you can see them on the top of the download buttons. Resetting removes these tables and the plot. Download the csv files as necessary. Note that if you do not keep a record of your analysis and close/reload the app, all calculations will be lost. As stated earlier, your data never leaves your computer when you use our app – so we cannot help you retrieve your past analysis. Please back up your calculations before you end your session."),
+                                  p(class = "justified-text",
+                                    "We welcome your feedback - please write to us at narendra@iisc.ac.in.")
                            )
                   ),
                   tabPanel("Downloads",
@@ -186,23 +194,23 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                   column(4, 
                          h2("Point estimate"),
                          tableOutput("Point_estimate_table"),
-                         downloadButton("Point_estimate_download")
+                         downloadButton_fixed("Point_estimate_download")
                   ),
                   column(4, 
                          h2("Confidence estimate"),
                          tableOutput("Confidence_estimate_table"),
-                         downloadButton("Confidence_estimate_download")
+                         downloadButton_fixed("Confidence_estimate_download")
                   ),
                   column(4, 
                          h2("Distribution"),
-                         tableOutput("Distribution_table"),
-                         downloadButton("Distribution_download")
+                         plotOutput("plot_copy", width = "400px", height = "230px"),
+                         downloadButton_fixed("Distribution_download")
                   )
                   ),
                   fluidRow(),
                   fluidRow(
-                    column(8,
-                           h4("If you do not see the table above the respective download button, do not press download"))
+                    column(10,
+                           h4("If you do not see the tables and the plot above the respective download buttons, do not press download."))
                   )
                 )
                 )
@@ -382,18 +390,6 @@ server <- function(input, output, session) {
     }
   )
   
-  output$Distribution_table <- renderTable({
-    if (reset_state() == 3) {
-      ""
-    }
-    if (reset_state() == 2) {
-      "Run simulate for the distribution"
-    }
-    if (reset_state() == 1) {
-      head(data.frame(Dist = na.omit(psi1())))
-    }
-  })
-  
   output$Distribution_download <- downloadHandler(
     filename = function() {
       paste0("whole_distribution",".csv")
@@ -415,6 +411,47 @@ server <- function(input, output, session) {
       plot(1, type = "n", axes = FALSE, xlab = "", ylab = "", 
            xlim = c(0, 10), ylim = c(0, 10), main = "")
       text(x = 5, y = 5, labels = "The distribution of ψ will appear here after you simulate", 
+           cex = 1, col = "blue")
+    }
+    if (reset_state() == 1) {
+      par(
+        mar = c(2.85, 2.7, 0.8, 1),   # bottom, left, top, right margins
+        mgp = c(1.8, 0.6, 0),  # axis title, axis labels, axis line
+        tcl = -0.25            # shorter tick marks
+      )
+      plot(
+        density(psi1(), na.rm = TRUE),
+        main = "",
+        xlab = "ψ",
+        ylab = "density",
+        col = "darkgray",
+        lwd = 3.5
+      )
+      abline(v = quantile(psi1(), probs = 0.25, na.rm = TRUE), col = "#076098", lwd = 2)
+      abline(v = quantile(psi1(), probs = 0.50, na.rm = TRUE), col = "black", lwd = 2)
+      abline(v = quantile(psi1(), probs = 0.75, na.rm = TRUE), col = "#076098", lwd = 2)
+      box()
+      legend("topleft", legend = c("Q1, Q3", "Median"), 
+             col = c("#076098", "black"), pch = "—", 
+             bty = "n")
+    }
+  }, res = 96)
+  
+  output$plot_copy <- renderPlot({
+    if (reset_state() == 3) {
+      plot(1, type = "n", axes = FALSE, xlab = "", ylab = "", 
+           xlim = c(0, 10), ylim = c(0, 10), main = "")
+      text(x = 5, y = 6.5, labels = "Simulate the distribution", 
+           cex = 1, col = "blue")
+      text(x = 5, y = 3.5, labels = "before downloading it.", 
+           cex = 1, col = "blue")
+    }
+    if (reset_state() == 2) {
+      plot(1, type = "n", axes = FALSE, xlab = "", ylab = "", 
+           xlim = c(0, 10), ylim = c(0, 10), main = "")
+      text(x = 5, y = 6.5, labels = "Simulate the distribution", 
+           cex = 1, col = "blue")
+      text(x = 5, y = 3.5, labels = "before downloading it.", 
            cex = 1, col = "blue")
     }
     if (reset_state() == 1) {
