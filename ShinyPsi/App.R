@@ -32,10 +32,11 @@ correction <- function(rho_c, psi_c, phi_c, alpha, beta) {
   c(psi)
 }
 
-set.seed(123)
+
 monte_carlo <- function (n, sp, sn, n_iter,
                          rho_c, psi_c, phi_c,
                          alpha_a, alpha_b, beta_a, beta_b) {
+  set.seed(123)
   n_iter <- as.numeric(n_iter)
   alpha <- rbeta(n_iter, alpha_a, alpha_b)
   beta  <- rbeta(n_iter, beta_a, beta_b)
@@ -58,6 +59,16 @@ downloadButton_fixed <- function(...) {
   tag$attribs$download <- NULL
   tag
 }
+
+modal_feedback1 <- modalDialog(class = "justified-text",
+  "The point estimate of ψ with the current parameter set (Q) is falling in the zones of unreliability. For more details on when and why that might happen please check figure 1 and the relevant text section of our manuscript (see at the bottom of this page for the reference). We also suggest that the user may please take a look at the simulated confidence intervals of ψ as the potential alternative.",
+  title = "Unreliable point estimate",
+  footer = tagList(
+    actionButton("cancel1", "Ok, I understand.", class = "btn-warning")
+  )
+)
+
+
 
 ui <- fluidPage(theme = shinytheme("superhero"),
                 tags$head(
@@ -82,33 +93,33 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                              column(3,
                                     h5("Essential parameters"),
                                     useShinyFeedback(),
-                                    numericInput("rho_c1", label = HTML(paste0("ρ", tags$sub("c"))), value = 0.027, min = 0, max = 1),
+                                    numericInput("rho_c1", label = HTML(paste0("ρ", tags$sub("c"))), value = 0.028, min = 0, max = 1),
                                     useShinyFeedback(),
-                                    numericInput("psi_c1", label = HTML(paste0("ψ", tags$sub("c"))), value = 0.121, min = 0, max = 1)
+                                    numericInput("psi_c1", label = HTML(paste0("ψ", tags$sub("c"))), value = 0.304, min = 0, max = 1)
                                     
                              ),
                              column(3,
                                     h5("Point estimation parameters"),
                                     useShinyFeedback(),
-                                    numericInput("alpha1", label = "α", value = 0.848, min = 0, max = 1),
+                                    numericInput("alpha1", label = "α", value = 0.967, min = 0, max = 1),
                                     useShinyFeedback(),
-                                    numericInput("beta1", label = "β", value = 1.0, min = 0, max = 1)
+                                    numericInput("beta1", label = "β", value = 0.995, min = 0, max = 1)
                              ),
                              column(3,
                                     h5("Confidence estimation set1"),
-                                    numericInput("n1", label = "n", value = 31869, min = 1),
+                                    numericInput("n1", label = "n", value = 13095, min = 1),
                                     selectInput("n_iter1", label = "iterations", c("select", "100000", "10000", "1000"))
                              ),
                              column(3,
                                     h5("Confidence estimation set2"),
-                                    numericInput("alpha_l", label = HTML(paste0("α", " [95% CI: lower limit]")), value = 0.75, min = 0, max = 1),
-                                    numericInput("alpha_u", label = HTML(paste0("α", " [95% CI: upper limit]")), value = 0.9, min = 0, max = 1)
+                                    numericInput("alpha_l", label = HTML(paste0("α", " [95% CI: lower limit]")), value = 0.924, min = 0, max = 1),
+                                    numericInput("alpha_u", label = HTML(paste0("α", " [95% CI: upper limit]")), value = 0.986, min = 0, max = 1)
                              )
                            ),
                            fluidRow(
                              column(3,
                                     useShinyFeedback(),
-                                    numericInput("phi_c1", label = HTML(paste0("φ", tags$sub("c"))), value = 0.578, min = 0, max = 1),
+                                    numericInput("phi_c1", label = HTML(paste0("φ", tags$sub("c"))), value = 0.432, min = 0, max = 1),
                                     h4("Point Estimate"),
                                     actionButton("Calculate", label = "Calculate!", class = "btn-warning"),
                                     p(HTML(paste0("ψ", tags$sub("point")))),
@@ -119,8 +130,10 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                                                 caption = "Hold tight, press no buttons, we're doing the math now.")
                              ),
                              column(3,
-                                    numericInput("beta_l", label = HTML(paste0("β", " [95% CI: lower limit]")), value = 0.9, min = 0, max = 1),
-                                    numericInput("beta_u", label = HTML(paste0("β", " [95% CI: upper limit]")), value = 1.0, min = 0, max = 1)
+                                    numericInput("beta_l", label = HTML(paste0("β", " [95% CI: lower limit]")), value = 0.987, min = 0, max = 1),
+                                    numericInput("beta_u", label = HTML(paste0("β", " [95% CI: upper limit]")), value = 0.998, min = 0, max = 1),
+                                    p("% of failed estimates in the virtual sample:"),
+                                    textOutput("failed_estimates")
                              )
                            ),
                            fluidRow(
@@ -136,6 +149,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                                     p("Tiwari et al. (2026). To be updated soon.")
                              ),
                              column(3,
+                                    br(),
                                     actionButton("reset", label = "Reset", class = "btn-warning")
                              )
                            )
@@ -172,7 +186,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                                   p(class = "justified-text",
                                   "The following instructions are written for a user who is using the app from their laptop or desktop with any operating system (we have tested Windows, Ubuntu and MacOS) and any web browser (we have tested Chrome, Edge, Safari, Firefox). The app can be used on the phones as well, although we do not recommend it. All calculations in ShinyPsi happen locally at your browser and that way no data ever leaves your computer."),
                                   p(class = "justified-text",
-                                    "The app, by default, has certain input values for each input space. Thus, immediately after loading or refreshing the app page, if you press “Calculate!” and “Simulate!” – i.e., the action buttons on the left bottom of the screen, results are displayed (action buttons are orange). You have to choose the number of iterations though. These results correspond to the latter default values, which we have kept for demonstration purposes."),
+                                    "The app, by default, has certain input values for each input space (measurements from a serosuvey, Espenhain et al., 2021). Thus, immediately after loading or refreshing the app page, if you press “Calculate!” and “Simulate!” – i.e., the action buttons on the left bottom of the screen, results are displayed (action buttons are orange). You have to choose the number of iterations though. These results correspond to the latter default values, which we have kept for demonstration purposes."),
                                   p(class = "justified-text",
                                     "When you begin the analysis with your own data, first press the reset button on the bottom right of the screen. This will remove all the default values from the input boxes. Note that this step (the “Reset” action) is also important if you want to download your analysis outputs at the end (see below). Reset makes sure previous input values are not used in the fresh analysis."),
                                   p(class = "justified-text",
@@ -183,6 +197,8 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                                     "If you are looking for both the point estimate and the distribution of ψ, you need the next two columns (see the description of parameters). After having the values of the parameters in all boxes, press “Simulate!” action button. Depending on the number of the iteration it might take few seconds to maybe minutes. All input values except n and iterations should be between 0 and 1. Any other input values or missing values will generate feedback for the user."),
                                   p(class = "justified-text",
                                     "Once the process is complete results will be displayed immediately below the action buttons. The plot that shows the distribution and the point estimate on it along with the IQRs will be generated simultaneously. Resetting will remove the plot alongside the inputs."),
+                                  p(class = "justified-text",
+                                    "Notice that above the reset button, the percentage of virtual sample that could not be successfully estimated is recorded. If this percentage is high (above 40%, for example) it is indicative of lower quality of the prediction of the confidence interval. The application will show outputs till this value reaches 95%. The user should be cautious in interpreting the results with high % failure rate. Beyond 95%, the app will generate an error message. Similarly, for certain combiantions of the parameter values the point estimate may not be reliable. In such cases, the app will generate a dialogue box to inform the user and will not display the unreliable point estimates."),
                                   p(class = "justified-text",
                                     "In case you want to keep a record of your analysis this is the time to back it up. Move to the Downloads tab. This tab will show the tables of point and confidence estimation. It will also show the same plot of the simulated distribution that is displayed on the application page. The tables are ready for downloading when you can see them on the top of the download buttons. Resetting removes these tables and the plot. Download the csv files as necessary. Note that if you do not keep a record of your analysis and close/reload the app, all calculations will be lost. As stated earlier, your data never leaves your computer when you use our app – so we cannot help you retrieve your past analysis. Please back up your calculations before you end your session."),
                                   p(class = "justified-text",
@@ -278,12 +294,28 @@ server <- function(input, output, session) {
     correction(input$rho_c1, input$psi_c1, input$phi_c1, input$alpha1, input$beta1)
   })
   
+  observeEvent(input$Calculate, {
+    if (reset_state()%in%c(1,2)) {
+      if (is.na(psi())) {
+        showModal(modal_feedback1)
+      }
+    }
+  })
+  
+  observeEvent(input$cancel1, {
+    removeModal()
+  })
+  
   output$point_estim <- renderText({
     if (reset_state() == 3) {
       ""
     }
     if (reset_state()%in%c(1,2)) {
-      as.character(round(psi(), 2))
+      if (is.na(psi())) {
+        "unreliable point estimate"
+      } else {
+        as.character(round(psi(), 3))
+      }
     }
   })
   
@@ -336,7 +368,7 @@ server <- function(input, output, session) {
                                      Alpha()$sen, Alpha()$spe, Beta()$sen, Beta()$spe)
                         })
   
-  outstring <- eventReactive(input$Simulate, {
+  outstring1 <- eventReactive(input$Simulate, {
                              psi_l2 = quantile(psi1(), probs = 0.25, na.rm = TRUE)
                              psi2 = quantile(psi1(), probs = 0.5, na.rm = TRUE)
                              psi_u2 = quantile(psi1(), probs = 0.75, na.rm = TRUE)
@@ -350,7 +382,26 @@ server <- function(input, output, session) {
       "Run simulate for the distribution"
     }
     if (reset_state() == 1) {
-      outstring()
+      if ((length(which(is.na(psi1())))/as.numeric(input$n_iter1))>0.95) {
+        "unreliable confidence estimate"
+      } else {
+        outstring1()
+      }
+    }
+  })
+  
+  outstring2 <- eventReactive(input$Simulate, {
+    paste0(as.character(round((length(which(is.na(psi1())))/as.numeric(input$n_iter1))*100, 2)), "%")
+  })
+  output$failed_estimates <- renderText({
+    if (reset_state() == 3) {
+      ""
+    }
+    if (reset_state() == 2) {
+      "Simulate first"
+    }
+    if (reset_state() == 1) {
+      outstring2()
     }
   })
   
@@ -414,6 +465,16 @@ server <- function(input, output, session) {
            cex = 1, col = "blue")
     }
     if (reset_state() == 1) {
+      if ((length(which(is.na(psi1())))/as.numeric(input$n_iter1))>0.95) {
+        plot(1, type = "n", axes = FALSE, xlab = "", ylab = "", 
+             xlim = c(0, 10), ylim = c(0, 10), main = "")
+        text(x = 5, y = 9, labels = "Less than 5% of the virtual samples are successfully", 
+             cex = 1, col = "red")
+        text(x = 5, y = 6, labels = "estimated. Please revise this parameter set.", 
+             cex = 1, col = "red")
+        text(x = 5, y = 3, labels = "See the Figure 1 in the manuscript for details.", 
+             cex = 1, col = "red")
+      } else {
       par(
         mar = c(2.85, 2.7, 0.8, 1),   # bottom, left, top, right margins
         mgp = c(1.8, 0.6, 0),  # axis title, axis labels, axis line
@@ -434,6 +495,7 @@ server <- function(input, output, session) {
       legend("topleft", legend = c("Q1, Q3", "Median"), 
              col = c("#076098", "black"), pch = "—", 
              bty = "n")
+      }
     }
   }, res = 96)
   
@@ -455,6 +517,14 @@ server <- function(input, output, session) {
            cex = 1, col = "blue")
     }
     if (reset_state() == 1) {
+      if ((length(which(is.na(psi1())))/as.numeric(input$n_iter1))>0.95) {
+        plot(1, type = "n", axes = FALSE, xlab = "", ylab = "", 
+             xlim = c(0, 10), ylim = c(0, 10), main = "")
+        text(x = 5, y = 6.5, labels = "Confidence estimates are unreliable.", 
+             cex = 1, col = "red")
+        text(x = 5, y = 3.5, labels = "Return to the application tab.", 
+             cex = 1, col = "red")
+      } else {
       par(
         mar = c(2.85, 2.7, 0.8, 1),   # bottom, left, top, right margins
         mgp = c(1.8, 0.6, 0),  # axis title, axis labels, axis line
@@ -475,6 +545,7 @@ server <- function(input, output, session) {
       legend("topleft", legend = c("Q1, Q3", "Median"), 
              col = c("#076098", "black"), pch = "—", 
              bty = "n")
+      }
     }
   }, res = 96)
 }
