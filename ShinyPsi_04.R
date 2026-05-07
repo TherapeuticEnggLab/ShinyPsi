@@ -60,32 +60,17 @@ downloadButton_fixed <- function(...) {
   tag
 }
 
-modal_feedback1 <- modalDialog(class = "justified-text",
-  "The point estimate of ψ with the current parameter set (Q) is falling in the zones of unreliability. For more details on when and why that might happen please check figure 1 and the relevant text section of our manuscript (see at the bottom of this page for the reference). We also suggest that the user may please take a look at the simulated confidence intervals of ψ as the potential alternative.",
-  title = "Unreliable point estimate",
-  footer = tagList(
-    actionButton("cancel1", "Ok, I understand.", class = "btn-warning")
-  )
-)
-
-
-
-ui <- fluidPage(theme = shinytheme("superhero"),
+ui <- navbarPage(theme = shinytheme("superhero"),
                 tags$head(
                   tags$style(HTML("
-                  .nav-tabs {
-                  display: flex;
-                  justify-content: flex-end;
-                  }
-                  .shiny-input-container label {
-                  font-size: 20px;
-                  }
-                  .justified-text {
-                  text-align: justify;
-                  }
-                  "))
+                 .shiny-input-container label {
+                 font-size: 20px;
+                 }
+                 .justified-text {
+                 text-align: justify;
+                 }
+                "))
                 ),
-                tabsetPanel(
                   tabPanel("Application",
                            titlePanel("ShinyPsi"),
                            h5("Adjusts asymptomatic-infection prevalence for nonspecific symptoms and test characteristics"),
@@ -230,7 +215,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                   )
                 )
                 )
-)
+
 
 server <- function(input, output, session) {
   reset_state <- reactiveVal(1)
@@ -297,7 +282,15 @@ server <- function(input, output, session) {
   observeEvent(input$Calculate, {
     if (reset_state()%in%c(1,2)) {
       if (is.na(psi())) {
-        showModal(modal_feedback1)
+        showModal(
+          modalDialog(class = "justified-text",
+                      "The point estimate of ψ with the current parameter set (Q) is falling in the zones of unreliability. For more details on when and why that might happen please check figure 1 and the relevant text section of our manuscript (see at the bottom of this page for the reference). We also suggest that the user may please take a look at the simulated confidence intervals of ψ as the potential alternative.",
+                      title = "Unreliable point estimate",
+                      footer = tagList(
+                        actionButton("cancel1", "Ok, I understand.", class = "btn-warning")
+                      )
+          )
+        )
       }
     }
   })
