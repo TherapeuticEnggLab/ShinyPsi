@@ -117,8 +117,8 @@ ui <- navbarPage(theme = shinytheme("superhero"),
                              column(3,
                                     numericInput("beta_l", label = HTML(paste0("β", " [95% CI: lower limit]")), value = 0.987, min = 0, max = 1),
                                     numericInput("beta_u", label = HTML(paste0("β", " [95% CI: upper limit]")), value = 0.998, min = 0, max = 1),
-                                    p("% of failed estimates in the virtual sample:"),
-                                    textOutput("failed_estimates")
+                                    #p("% of failed estimates in the virtual sample:"),
+                                    #textOutput("failed_estimates")
                              )
                            ),
                            fluidRow(
@@ -183,7 +183,7 @@ ui <- navbarPage(theme = shinytheme("superhero"),
                                   p(class = "justified-text",
                                     "Once the process is complete results will be displayed immediately below the action buttons. The plot that shows the distribution and the point estimate on it along with the IQRs will be generated simultaneously. Resetting will remove the plot alongside the inputs."),
                                   p(class = "justified-text",
-                                    "Notice that above the reset button, the percentage of virtual sample that could not be successfully estimated is recorded. If this percentage is high (above 40%, for example) it is indicative of lower quality of the prediction of the confidence interval. The application will show outputs till this value reaches 95%. The user should be cautious in interpreting the results with high % failure rate. Beyond 95%, the app will generate an error message. Similarly, for certain combiantions of the parameter values the point estimate may not be reliable. In such cases, the app will generate a dialogue box to inform the user and will not display the unreliable point estimates."),
+                                    "If the input parameters are not reflective of serosurveys, the simulation might generate values of psi that are unrealistic, i.e., above 1 or below 0 and these values are censored. If the proportion of such censored values is more that half of the total size of the virtual sample, the application will generate an error message. The distribution will not be shown and the median and the IQRs will not be displayed. Similarly, for certain combiantions of the parameter values that are not reflective of serosurveys the point estimate may not be reliable. In such cases, the application will generate a dialogue box to inform the user and will not display the unreliable point estimates."),
                                   p(class = "justified-text",
                                     "In case you want to keep a record of your analysis this is the time to back it up. Move to the Downloads tab. This tab will show the tables of point and confidence estimation. It will also show the same plot of the simulated distribution that is displayed on the application page. The tables are ready for downloading when you can see them on the top of the download buttons. Resetting removes these tables and the plot. Download the csv files as necessary. Note that if you do not keep a record of your analysis and close/reload the app, all calculations will be lost. As stated earlier, your data never leaves your computer when you use our app – so we cannot help you retrieve your past analysis. Please back up your calculations before you end your session."),
                                   p(class = "justified-text",
@@ -383,20 +383,20 @@ server <- function(input, output, session) {
     }
   })
   
-  outstring2 <- eventReactive(input$Simulate, {
-    paste0(as.character(round((length(which(is.na(psi1())))/as.numeric(input$n_iter1))*100, 2)), "%")
-  })
-  output$failed_estimates <- renderText({
-    if (reset_state() == 3) {
-      ""
-    }
-    if (reset_state() == 2) {
-      "Simulate first"
-    }
-    if (reset_state() == 1) {
-      outstring2()
-    }
-  })
+  #outstring2 <- eventReactive(input$Simulate, {
+  #  paste0(as.character(round((length(which(is.na(psi1())))/as.numeric(input$n_iter1))*100, 2)), "%")
+  #})
+  #output$failed_estimates <- renderText({
+  #  if (reset_state() == 3) {
+  #    ""
+  #  }
+  #  if (reset_state() == 2) {
+  #    "Simulate first"
+  #  }
+  #  if (reset_state() == 1) {
+  #    outstring2()
+  #  }
+  #})
   
   output$Confidence_estimate_table <- renderTable({
     if (reset_state() == 3) {
@@ -458,12 +458,12 @@ server <- function(input, output, session) {
            cex = 1, col = "blue")
     }
     if (reset_state() == 1) {
-      if ((length(which(is.na(psi1())))/as.numeric(input$n_iter1))>0.95) {
+      if ((length(which(is.na(psi1())))/as.numeric(input$n_iter1))>0.5) {
         plot(1, type = "n", axes = FALSE, xlab = "", ylab = "", 
              xlim = c(0, 10), ylim = c(0, 10), main = "")
-        text(x = 5, y = 9, labels = "Less than 5% of the virtual samples are successfully", 
+        text(x = 5, y = 9, labels = "Input parameters are not reflective of ", 
              cex = 1, col = "red")
-        text(x = 5, y = 6, labels = "estimated. Please revise this parameter set.", 
+        text(x = 5, y = 6, labels = "serosurveys. Please revise this parameter set.", 
              cex = 1, col = "red")
         text(x = 5, y = 3, labels = "See the Figure 1 in the manuscript for details.", 
              cex = 1, col = "red")
@@ -510,7 +510,7 @@ server <- function(input, output, session) {
            cex = 1, col = "blue")
     }
     if (reset_state() == 1) {
-      if ((length(which(is.na(psi1())))/as.numeric(input$n_iter1))>0.95) {
+      if ((length(which(is.na(psi1())))/as.numeric(input$n_iter1))>0.5) {
         plot(1, type = "n", axes = FALSE, xlab = "", ylab = "", 
              xlim = c(0, 10), ylim = c(0, 10), main = "")
         text(x = 5, y = 6.5, labels = "Confidence estimates are unreliable.", 
