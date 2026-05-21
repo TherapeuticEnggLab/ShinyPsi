@@ -131,7 +131,8 @@ ui <- navbarPage(theme = shinytheme("superhero"),
                              ),
                              column(6,
                                     h4("If you find ShinyPsi useful, please consider citing our manuscript:"),
-                                    p("Tiwari et al. (2026). To be updated soon.")
+                                    tags$a(href = "https://www.medrxiv.org/content/10.1101/2024.09.11.24313462v2", 
+                                    "A fast and accurate method for estimating the proportion of asymptomatic infections from serosurveys: Application to SARS-CoV-2 and beyond", style = "color: lightblue;", target = "_blank")
                              ),
                              column(3,
                                     br(),
