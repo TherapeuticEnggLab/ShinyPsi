@@ -165,7 +165,8 @@ ui <- navbarPage(theme = shinytheme("superhero"),
                                   p("Virtual sample size for generating the distribution of ψ"),
                                   p(),
                                   h4("For a more detailed discussion on the paremeters please check out our paper:"),
-                                  p("Tiwari et al. (2026). To be updated soon.")
+                                  tags$a(href = "https://www.medrxiv.org/content/10.1101/2024.09.11.24313462v2", 
+                                         "A fast and accurate method for estimating the proportion of asymptomatic infections from serosurveys: Application to SARS-CoV-2 and beyond", style = "color: lightblue;", target = "_blank")
                            ),
                            column(8,
                                   h2("Usage guidelines"),
